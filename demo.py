@@ -1,6 +1,6 @@
 import numpy as np
-import copulas
-import margins
+import Multivariate_Sampling.copulas as copulas
+import Multivariate_Sampling.margins as margins
 
 F1 = margins.uniform(1,3)
 F2 = margins.uniform(3,5)
