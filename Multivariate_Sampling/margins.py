@@ -1,52 +1,24 @@
 import sympy as sy
 
-
-def sigmoid(u0=0,s=1):
+def normal():
     '''
     '''
-    u_, v_, v0_, s_ = sy.symbols('u, v, u0, s')
+    v, v0, s = sy.symbols('v, u0, s')
+    V = (v-v0) / (s * sy.sqrt(2))
+    F = 0.5 * ( 1 + sy.erf(V) )
+    return F, [v, v0, s]
 
-    # CDF:
-    ###############################################
-    V = (v_-v0_)/s_
-    CDF = 1/(1+sy.exp(-V))
-    ###############################################
-
-    CDF_inv = sy.solve(sy.Eq(CDF,u_),v_)[0]
-    CDF_inv = sy.lambdify((u_,v0_,s_),CDF_inv) 
-
-    def out(u):return CDF_inv(u,u0,s)
-    return out
-
-def normal(u0=0,s=1):
+def uniform():
     '''
     '''
-    u_, v_, v0_, s_ = sy.symbols('u, v, u0, s')
+    v, v0, s = sy.symbols('v, v0, s')
+    F = (v-v0)/s
+    return F, [v, v0, s]
 
-    # CDF:
-    ###############################################
-    V = (v_-v0_) / (s_ * sy.sqrt(2))
-    CDF = 0.5 * ( 1 + sy.erf(V) )
-    ###############################################
-
-    CDF_inv = sy.solve(sy.Eq(CDF,u_),v_)[0]
-    CDF_inv = sy.lambdify((u_,v0_,s_),CDF_inv) 
-
-    def out(u):return CDF_inv(u,u0,s)
-    return out
-
-def uniform(u0=0,s=1):
+def sigmoid():
     '''
     '''
-    u_, v_, v0_, s_ = sy.symbols('u, v, u0, s')
-
-    # CDF:
-    ###############################################
-    CDF = (v_-v0_)/s_
-    ###############################################
-
-    CDF_inv = sy.solve(sy.Eq(CDF,u_),v_)[0]
-    CDF_inv = sy.lambdify((u_,v0_,s_),CDF_inv) 
-
-    def out(u):return CDF_inv(u,u0,s)
-    return out
+    v, v0, s = sy.symbols('v, v0, s')
+    V = (v-v0)/s
+    F = 1/(1+sy.exp(-V))
+    return F, [v, v0, s]

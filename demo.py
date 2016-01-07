@@ -1,19 +1,35 @@
 import numpy as np
-import Multivariate_Sampling.copulas as copulas
-import Multivariate_Sampling.margins as margins
+from Multivariate_Sampling import copulas
+from Multivariate_Sampling import margins
+from Multivariate_Sampling import MVD
 
-F1 = margins.uniform(1,3)
-F2 = margins.uniform(3,5)
-C = copulas.Frank(5)
+M1 = margins.uniform()
+M2 = margins.sigmoid()
+C = copulas.frank()
 
-X = []
-for i in range(5000):
-    u1, v2 = np.random.uniform(size=2)
-    u2 = C(u1, v2)
-    X.append([ F1(u1), F2(u2) ])
+mvd = MVD(copula=C,margin=[M1,M2])
+mvd.copula_para = [1]
+mvd.margin_para = [[3,3],[1,2]]
 
-X = np.array(X).T
+X = mvd.generate_x()
 
 import matplotlib.pyplot as plt
-plt.scatter(X[0],X[1])
-plt.show()
+plt.scatter(X.T[0],X.T[1])
+plt.savefig('/tmp/tmp.pdf')
+
+mvd.fit(X)
+print mvd.margin_para
+print mvd.copula_para
+print
+
+X = mvd.generate_x()
+mvd.fit(X)
+print mvd.margin_para
+print mvd.copula_para
+print
+
+X = mvd.generate_x(10)
+mvd.fit(X)
+print mvd.margin_para
+print mvd.copula_para
+
