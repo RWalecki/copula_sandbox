@@ -1,9 +1,12 @@
 import sympy as sy
 import numpy as np
 from scipy.optimize import minimize
+import matplotlib.pyplot as plt
+from scipy import ndimage
 
 def fit_copula(C, para, U):
-
+    '''
+    '''
     #  if there are no parameter to optimize,
     #  return empty array
     if len(para)==2:return []
@@ -51,9 +54,9 @@ def fit_copula(C, para, U):
 
     return x1
 
-
 def fit_margin(F, para, X):
-
+    '''
+    '''
     # compute empirical margin
     X = np.sort(X)
     Y = np.arange(len(X))/float(len(X))
@@ -87,3 +90,38 @@ def fit_margin(F, para, X):
             ).x
 
     return x1
+
+def fit_jpdf(jpdf, para, X):pass
+
+def plot_fun1(ax, fun, extent, rot=False, aspect=1, pix=100):
+    '''
+    '''
+    xx = np.linspace(extent[0], extent[1], pix)
+    yy = []
+    for x in xx:yy.append(fun(x))
+    if rot:
+        plt.plot(yy,xx,linewidth=5.0)
+    else:
+        plt.plot(xx,yy,linewidth=5.0)
+    extent = ax.get_xlim()+ax.get_ylim()
+    ax.set_aspect(abs((extent[1]-extent[0])/(extent[3]-extent[2]))/1)
+
+    return ax
+
+def plot_fun2(ax, fun, extent, aspect=1, pix=100):
+    '''
+    '''
+    xx, yy = np.meshgrid(
+            np.linspace(extent[0], extent[1], pix),
+            np.linspace(extent[2], extent[3], pix)
+            )
+
+    zz = []
+    for x,y in zip(xx.ravel(),yy.ravel()):
+        zz.append(fun(x,y))
+    zz = np.array(zz)
+    zz = zz.reshape(xx.shape)
+
+    plt.imshow(zz,origin='lower',extent=extent)
+    ax.set_aspect(abs((extent[1]-extent[0])/(extent[3]-extent[2]))/aspect)
+    return ax

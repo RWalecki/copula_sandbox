@@ -1,5 +1,6 @@
 import sympy as sy
 
+
 def independent():
     '''
     '''
@@ -24,3 +25,9 @@ def frank():
     C = -1/(d) * sy.log(C)
 
     return C, [u1, u2, d]
+
+
+copula = {
+        'independent':independent,
+        'frank':frank
+        }
