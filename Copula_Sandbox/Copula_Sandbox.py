@@ -5,26 +5,8 @@ import copulas
 import margins
 
 
-def adjustFigAspect(fig,aspect=1):
-    '''
-    Adjust the subplot parameters so that the figure has the correct
-    aspect ratio.
-    '''
-    xsize,ysize = fig.get_size_inches()
-    minsize = min(xsize,ysize)
-    xlim = .4*minsize/xsize
-    ylim = .4*minsize/ysize
-    if aspect < 1:
-        xlim *= aspect
-    else:
-        ylim /= aspect
-    fig.subplots_adjust(left=.5-xlim,
-                        right=.5+xlim,
-                        bottom=.5-ylim,
-                        top=.5+ylim)
 
-
-class MVD():
+class Archimedes():
     '''
     C copula function
     D copula parameter: d
@@ -53,7 +35,7 @@ class MVD():
         self.dim = dim
         self.verbose = verbose
 
-    def add_margin(self,dim, type='uniform', para=[]):
+    def set_margin(self,dim, type='uniform', para=[]):
         '''
         '''
         if self.verbose:print 'initial margin:',dim,type
@@ -67,18 +49,6 @@ class MVD():
         self.X[dim] = X
         self.F_para[dim] = para
         self.F_type[dim] = type
-
-    def transform_u(self,samples):
-        '''
-        # compute multivariate data U belonging to unit hypercubek
-        '''
-
-        U = np.zeros_like(samples)
-        for m in range(self.dim):
-            F = sy.lambdify([self.X[m]]+self.P[m],self.F[m],'numpy')
-            U[:,m] = F(samples[:,m],*self.F_para[m])
-
-        return U
 
     def fit(self, samples):
         '''
@@ -142,7 +112,19 @@ class MVD():
 
         return X
 
-    def plot_model(self, samples=None):
+    def transform_u(self,samples):
+        '''
+        # compute multivariate data U belonging to unit hypercubek
+        '''
+
+        U = np.zeros_like(samples)
+        for m in range(self.dim):
+            F = sy.lambdify([self.X[m]]+self.P[m],self.F[m],'numpy')
+            U[:,m] = F(samples[:,m],*self.F_para[m])
+
+        return U
+
+    def plot_model(self, samples=None, path='/tmp/tmp.pdf'):
         '''
         '''
         # print model elements 
@@ -150,43 +132,12 @@ class MVD():
         print self.C_para, '\n'
         for m in range(self.dim):
             print self.F_type[m]
-            print self.F_para[m]
             print self.F_para[m], '\n'
 
         if self.dim!=2:
-            print 'WARNING! only bivariate Copula models can be plotted'
-            print 'FIX: set "dimensions=2" and try again'
+            print 'WARNING!  only bivariate Copula models can be plotted'
+            print '    FIX:  set "dim=2" and try again'
             return self
 
         # compute copula probability density function 
-        P = self.C
-        for u in self.U:P = sy.diff(P,u)
-
-        # substitute U with margins
-        for m in range(self.dim):
-            P = P.subs(self.U[m], self.F[m])
-
-        # multiply P with marginal probability (from chain rule)
-        for m in range(self.dim):
-            P = P * sy.diff(self.F[m],self.X[m])
-
-        # substitute model parameter
-        P = P.subs(self.D,self.C_para)
-        for m in range(self.dim): # loop over margins
-            for p in range(len(self.P[m])): # loop over margin parameter
-                P = P.subs(self.P[m][p],self.F_para[m][p])
-        P = sy.lambdify(self.X,P,'numpy')
-
-        # this is the jpdf
-        x=np.linspace(-10,10,100)
-
-        print P(x,x)
-        # todo: marginal pdf 
-        # todo: copula cdf 
-        # todo: marginal cdf 
-        # add scatter
-        # deriva all equation ad add to plots
-        return self
-
-
-
+        utils.plotting.plot_summary(self, samples, path)

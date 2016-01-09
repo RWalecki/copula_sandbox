@@ -1,11 +1,13 @@
-import Multivariate_Sampling as ms
+import Copula_Sandbox as CS
 
 
 # define copula model:
-mvd1 = ms.MVD(type='frank', dim = 3, para=5)
-mvd1.add_margin(0, 'sigmoid',para=[3,4])
-mvd1.add_margin(1, 'sigmoid',para=[1,2])
-mvd1.plot_model()
+mvd1 = CS.Archimedes(type='frank', dim = 2, para=10)
+mvd1.set_margin(0, 'uniform',para=[3,4])
+mvd1.set_margin(1, 'sigmoid',para=[1,2])
+X = mvd1.generate_x(300)
+mvd1.fit(X)
+mvd1.plot_model(X)
 
 
 '''

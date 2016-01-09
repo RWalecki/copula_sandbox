@@ -1,4 +1,4 @@
-import Multivariate_Sampling as ms
+import Copula_Sandbox as CS
 import cPickle,gzip
 
 # load training data:
@@ -6,9 +6,9 @@ import cPickle,gzip
 print info,'\n'
 
 # define copula model:
-mvd1 = ms.MVD(type='frank', dim = 2)
-mvd1.add_margin(0, 'sigmoid')
-mvd1.add_margin(1, 'sigmoid')
+mvd1 = CS.Archimedes(type='frank', dim = 2)
+mvd1.set_margin(0, 'sigmoid')
+mvd1.set_margin(1, 'sigmoid')
 
 
 # fit magins and copula to training data
