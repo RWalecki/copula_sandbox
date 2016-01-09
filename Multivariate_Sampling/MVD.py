@@ -1,8 +1,6 @@
 import numpy as np
 import sympy as sy
 import utils
-#import matplotlib.pyplot as plt
-#import matplotlib.gridspec as gridspec
 import copulas
 import margins
 
@@ -36,7 +34,7 @@ class MVD():
     P list of margin parameter 
     X list of margin variables
     '''
-    def __init__(self, type='independent', dim = 2, para=[],verbose=0):
+    def __init__(self, type='independent', dim = 2, para=None,verbose=0):
         '''
         '''
         if verbose:print 'initial Copula: '+type
@@ -107,6 +105,7 @@ class MVD():
                 U
                 )
         if self.verbose==1:print res
+        self.C_para=res
 
 
 

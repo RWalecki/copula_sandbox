@@ -1,30 +1,34 @@
 import Multivariate_Sampling as ms
 import cPickle,gzip
 
-# generate samples from a frank coupula
-# with a uniform and sigmoid margin
-'''
-mvd1 = ms.MVD(type='frank', dim = 2, para=-7, verbose=1)
-mvd1.add_margin(0, 'sigmoid', para=[3,4])
-mvd1.add_margin(1, 'uniform', para=[-10,3])
-X = mvd1.generate_x(5000)
-'''
-[X,info] = cPickle.load(gzip.open('test_samples.pklz','rb'))
-import numpy as np
-print X.shape
-print info
-mvd1 = ms.MVD(type='frank', para=5, dim = 2, verbose = 1)
+# load training data:
+[X,info] = cPickle.load(gzip.open('./tests/test_samples.pklz','rb'))
+print info,'\n'
+
+# define copula model:
+mvd1 = ms.MVD(type='frank', dim = 2)
 mvd1.add_margin(0, 'sigmoid')
-mvd1.add_margin(1, 'uniform')
+mvd1.add_margin(1, 'sigmoid')
+
+
+# fit magins and copula to training data
 mvd1.fit(X)
-mvd1.transform_u(X)
-#X = mvd1.generate_x(5000)
-#mvd1.fit(X)
-'''
+
+# print parameter
+print mvd1.C_para
+print mvd1.F_para[0]
+print mvd1.F_para[1], '\n'
+
+# sample from copula model
+X = mvd1.generate_x(1000)
+U = mvd1.transform_u(X)
 
 # visualize results 
-mvd2.visual_model('/tmp/tmp.pdf',samples = X)
 import matplotlib.pyplot as plt
-plt.scatter(X.T[0],X.T[1],c='k',alpha=0.5)
+plt.subplot(211)
+plt.scatter(X.T[0],X.T[1],alpha=0.5)
+plt.title('X')
+plt.subplot(212)
+plt.scatter(U.T[0],U.T[1],alpha=0.5)
+plt.title('U')
 plt.savefig('/tmp/tmp.pdf')
-'''
