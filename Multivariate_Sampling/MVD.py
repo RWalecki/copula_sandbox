@@ -1,10 +1,10 @@
 import numpy as np
 import sympy as sy
 import utils
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-from copulas import copula
-from margins import margin
+#import matplotlib.pyplot as plt
+#import matplotlib.gridspec as gridspec
+import copulas
+import margins
 
 
 def adjustFigAspect(fig,aspect=1):
@@ -27,47 +27,86 @@ def adjustFigAspect(fig,aspect=1):
 
 
 class MVD():
+    '''
+    C copula function
+    D copula parameter: d
+    U copula variables: [u0,u1,u2...]
 
-    def __init__(self, type='independent', para=[]):
+    M list of margin functions
+    P list of margin parameter 
+    X list of margin variables
+    '''
+    def __init__(self, type='independent', dim = 2, para=[],verbose=0):
         '''
         '''
-        self.copula  = copula[type]()
-        self.copula_para = para  
+        if verbose:print 'initial Copula: '+type
+        self.C, self.U, self.D = copulas.load(type,dim)
+        if verbose:print self.C
+        if verbose:print self.U
+        if verbose:print self.D,para, '\n'
+        self.C_type = type
+        self.C_para = para
 
-        self.margin = []
-        self.margin_para = []
-        self.N = 0
+        self.F = [None] * dim
+        self.P = [None] * dim
+        self.X = [None] * dim
+        self.F_type = [None] * dim
+        self.F_para = [None] * dim
+        self.dim = dim
+        self.verbose = verbose
 
-    def add_margin(self,type='uniform', para=[]):
+    def add_margin(self,dim, type='uniform', para=[]):
         '''
         '''
-        self.margin.append( margin[type]('_'+str(self.N)) )
-        self.margin_para.append(para)
-        self.N+=1
+        if self.verbose:print 'initial margin:',dim,type
+        F, X, P = margins.load(type,dim)
+        if self.verbose:print F
+        if self.verbose:print X
+        if self.verbose:print P,para, '\n'
+    
+        self.F[dim] = F
+        self.P[dim] = P
+        self.X[dim] = X
+        self.F_para[dim] = para
+        self.F_type[dim] = type
 
-    def fit(self, X):
+    def transform_u(self,samples):
+        '''
+        # compute multivariate data U belonging to unit hypercubek
+        '''
+
+        U = np.zeros_like(samples)
+        for m in range(self.dim):
+            F = sy.lambdify([self.X[m]]+self.P[m],self.F[m],'numpy')
+            U[:,m] = F(samples[:,m],*self.F_para[m])
+
+        return U
+
+    def fit(self, samples):
         '''
         '''
-        # fit margin and compute U
-        U = np.zeros_like(X)
-        margin_para = []
-        for i in range(X.shape[1]):
+        # fit margins
+        for m in range(self.dim):
+            res = utils.fitting.fit_margin(
+                    self.F[m],
+                    self.X[m],
+                    self.P[m],
+                    samples[:,m]
+                    )
+            self.F_para[m]=res
+            if self.verbose==1:print res
 
-            F, para_F = self.margin[i]
-            values = utils.fit_margin(F, para_F, X[:,i])
-            margin_para.append(values)
+        U = self.transform_u(samples)
 
-            for p,val in zip(para_F[1:],values):
-                F = F.subs(p,val)
-
-            F_ = sy.lambdify(para_F[0],F,'numpy')
-            U[:,i] = F_(X[:,i])
-        self.margin_para = np.array(margin_para)
-
-        # fit copula
-        C, para_C = self.copula
-        values = utils.fit_copula(C, para_C, U)
-        self.copula_para=values
+        # fit copula 
+        if self.C_type=='independent':return self
+        res = utils.fitting.fit_copula(
+                self.C, 
+                self.U,
+                self.D,
+                U
+                )
+        if self.verbose==1:print res
 
 
 
@@ -75,39 +114,34 @@ class MVD():
 
     def generate_x(self, N=1000):
         '''
+        this sampling method works wit all margins,
+        but only frank and independent copulas can be used
+        and it is limited to 2 dimensions
         '''
+        # compute marginal prob of u1
+        P_U1 = sy.simplify(sy.diff(self.C,self.U[0]))
+
+        # invert marginal prob of u1
         y = sy.symbols('y')
-        C, para_C = self.copula
-        u0 = para_C[0]
-        u1 = para_C[1]
-        d = para_C[2:]
+        tmp = sy.solve(sy.Eq(P_U1,y),self.U[1])
+        inv_P_U1 = sy.lambdify((self.U[0],y,self.D),tmp,'numpy') 
 
-        C_inv = sy.solve(sy.Eq(sy.diff(C,u0),y),u1)[0]
-        C_inv = sy.lambdify((u0,y,d),C_inv,'numpy') 
-
-        M_inv = []
-        for M,v in zip(self.margin,self.margin_para):
-
+        # invert margins 
+        inv_F = {}
+        for m in [0,1]:
             u = sy.symbols('u')
-            F, para_F = M
-            x0 = para_F[0]
-            p = para_F[1:]
-            
-            F_inv = sy.solve(sy.Eq(F,u),x0)[0]
-            F_inv = sy.lambdify((u,p),F_inv,'numpy') 
-            M_inv.append(F_inv)
+            tmp = sy.solve(sy.Eq(self.F[m],u),self.X[m])[0]
+            inv_F[m] = sy.lambdify((u,self.P[m]),tmp,'numpy') 
 
-        X = []
+
+        X = np.zeros((N,2))
         for i in range(N):
             u0, y = np.random.uniform(size=2)
+            u1 = inv_P_U1(u0,y,self.C_para)
+            X[i,0] = inv_F[0](u0,self.F_para[0])
+            X[i,1] = inv_F[1](u1,self.F_para[1])
 
-            u1 = C_inv(u0,y,self.copula_para)
-
-            x0 = M_inv[0](u0,self.margin_para[0])
-            x1 = M_inv[1](u1,self.margin_para[1])
-            X.append([x0,x1])
-
-        return np.array(X)
+        return X
 
     def visual_model(self,path,samples=None):
         '''

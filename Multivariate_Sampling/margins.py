@@ -1,30 +1,24 @@
 import sympy as sy
 
-def normal(n='_0'):
-    '''
-    '''
-    v, v0, s = sy.symbols('v'+n+',u0'+n+',s'+n)
-    V = (v-v0) / (s * sy.sqrt(2))
-    F = 0.5 * ( 1 + sy.erf(V) )
-    return F, [v, v0, s]
-
 def uniform(n='_0'):
     '''
     '''
-    v, v0, s = sy.symbols('v'+n+',u0'+n+',s'+n)
-    F = (v-v0)/s
-    return F, [v, v0, s]
+    x, x0, s = sy.symbols('x'+n+',x0'+n+',s'+n)
+    X = (x-x0)/s
+    F = X
+    return F, x, [x0, s]
 
 def sigmoid(n='_0'):
     '''
     '''
-    v, v0, s = sy.symbols('v'+n+',u0'+n+',s'+n)
-    V = (v-v0)/s
-    F = 1/(1+sy.exp(-V))
-    return F, [v, v0, s]
+    x, x0, s = sy.symbols('x'+n+',x0'+n+',s'+n)
+    X = (x-x0)/s
+    F = 1/(1+sy.exp(-X))
+    return F, x, [x0, s]
 
-margin = {
-        'normal':normal,
-        'uniform':uniform,
-        'sigmoid':sigmoid,
-        }
+def load(type,n):
+    m = {
+            'uniform':uniform,
+            'sigmoid':sigmoid,
+            }
+    return m[type]('_'+str(n))
