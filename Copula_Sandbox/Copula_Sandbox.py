@@ -13,7 +13,7 @@ class Archimedes():
     U copula variables: [u0,u1,u2...]
 
     M list of margin functions
-    P list of margin parameter 
+    P list of margin parameter
     X list of margin variables
     '''
     def __init__(self, type='independent', dim = 2, para=None,verbose=0):
@@ -43,7 +43,7 @@ class Archimedes():
         if self.verbose:print F
         if self.verbose:print X
         if self.verbose:print P,para, '\n'
-    
+
         self.F[dim] = F
         self.P[dim] = P
         self.X[dim] = X
@@ -66,10 +66,10 @@ class Archimedes():
 
         U = self.transform_u(samples)
 
-        # fit copula 
+        # fit copula
         if self.C_type=='independent':return self
         res = utils.fitting.fit_copula(
-                self.C, 
+                self.C,
                 self.U,
                 self.D,
                 U
@@ -93,14 +93,14 @@ class Archimedes():
         # invert marginal prob of u1
         y = sy.symbols('y')
         tmp = sy.solve(sy.Eq(P_U1,y),self.U[1])
-        inv_P_U1 = sy.lambdify((self.U[0],y,self.D),tmp,'numpy') 
+        inv_P_U1 = sy.lambdify((self.U[0],y,self.D),tmp,'numpy')
 
-        # invert margins 
+        # invert margins
         inv_F = {}
         for m in [0,1]:
             u = sy.symbols('u')
             tmp = sy.solve(sy.Eq(self.F[m],u),self.X[m])[0]
-            inv_F[m] = sy.lambdify((u,self.P[m]),tmp,'numpy') 
+            inv_F[m] = sy.lambdify((u,self.P[m]),tmp,'numpy')
 
 
         X = np.zeros((N,2))
@@ -127,7 +127,7 @@ class Archimedes():
     def plot_model(self, samples=None, path='/tmp/tmp.pdf'):
         '''
         '''
-        # print model elements 
+        # print model elements
         print self.C_type
         print self.C_para, '\n'
         for m in range(self.dim):
@@ -139,5 +139,5 @@ class Archimedes():
             print '    FIX:  set "dim=2" and try again'
             return self
 
-        # compute copula probability density function 
+        # compute copula probability density function
         utils.plotting.plot_summary(self, samples, path)

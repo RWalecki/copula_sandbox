@@ -71,9 +71,8 @@ def load( type, dim=2 ):
 
 
 if __name__ == "__main__":
-    '''
+
     import matplotlib.pyplot as plt
-    from utils import plot_fun2
     import numpy as np
 
     C, U, d = load('frank',2)
@@ -82,31 +81,3 @@ if __name__ == "__main__":
     print d
     y = sy.symbols('y')
     P = sy.simplify(sy.diff(C,U[0]))
-    print sy.invert(P,y)
-
-    _cdf = sy.lambdify([U,d],C)
-    def cdf(u0,u1):return _cdf([u0,u1],D)
-    print cdf(0.1,0.3)
-
-    _pdf = sy.diff(sy.diff(C,U[0]),U[1])
-    _pdf = sy.lambdify([U,d],_pdf)
-    def pdf(u0,u1):return _pdf([u0,u1],D)
-
-    f, ax = plt.subplots()
-    m = 0.01
-    plot_fun2(ax, pdf, [m,1-m,m,1-m], aspect=1)
-    plt.savefig('/tmp/tmp.pdf', transparent=True, bbox_inches='tight')
-
-    G, [t,d] = frank_G()
-    from sympy.integrals import laplace_transform as lt
-    y = sy.symbols('y')
-    u = np.random.uniform(size=2)
-    print u
-    y = sy.symbols('y')
-    G_inv = sy.solve(sy.Eq(G,y),t)[0].subs(y,t)
-
-    f = sy.lambdify(t,G.subs(d,10),'numpy')
-    x = np.linspace(0,1,100)
-    print f(x)
-
-    '''
