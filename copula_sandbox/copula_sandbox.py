@@ -6,7 +6,7 @@ import margins
 
 
 
-class Archimedes():
+class archimedes():
     '''
     C copula function
     D copula parameter: d
