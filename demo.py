@@ -1,9 +1,9 @@
-import Copula_Sandbox as CS
+import copula_sandbox as cs
 import cPickle,gzip
 
 
 # define copula model:
-mvd1 = CS.Archimedes(type='frank', dim = 2)
+mvd1 = cs.Archimedes(type='frank', dim = 2)
 mvd1.set_margin(0, 'sigmoid')
 mvd1.set_margin(1, 'sigmoid')
 
@@ -28,7 +28,7 @@ print mvd1.F_para[1], '\n'
 [X,info] = cPickle.load(gzip.open('./tests/test_samples.pklz','rb'))
 print info,'\n'
 
-mvd2 = CS.Archimedes(type='frank', dim = 2)
+mvd2 = cs.Archimedes(type='frank', dim = 2)
 mvd2.set_margin(0, 'sigmoid')
 mvd2.set_margin(1, 'uniform')
 
