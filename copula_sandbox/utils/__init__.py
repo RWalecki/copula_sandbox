@@ -1,2 +1,2 @@
-import fitting
-import plotting
+from . import fitting
+from . import plotting

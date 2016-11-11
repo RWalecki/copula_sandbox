@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
     C, U, d = load('frank',2)
     D = 3
-    print U
-    print d
+    print(U)
+    print(d)
     y = sy.symbols('y')
     P = sy.simplify(sy.diff(C,U[0]))

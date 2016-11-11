@@ -1,5 +1,4 @@
 import copula_sandbox as cs
-import cPickle,gzip
 
 
 # define copula model:
@@ -18,25 +17,20 @@ X = mvd1.generate_x(1000)
 mvd1.fit(X)
 
 # print parameter
-print mvd1.C_para
-print mvd1.F_para[0]
-print mvd1.F_para[1], '\n'
+print(mvd1.C_para)
+print(mvd1.F_para[0])
+print(mvd1.F_para[1], '\n')
 
-
-
-# load training data:
-[X,info] = cPickle.load(gzip.open('./tests/test_samples.pklz','rb'))
-print info,'\n'
 
 mvd2 = cs.archimedes(type='frank', dim = 2)
 mvd2.set_margin(0, 'sigmoid')
 mvd2.set_margin(1, 'uniform')
 
-# simulate from copula model
+# # simulate from copula model
 mvd2.fit(X)
 U = mvd2.transform_u(X)
 
-## visualize results
+# ## visualize results
 import matplotlib.pyplot as plt
 plt.subplot(211)
 plt.scatter(X.T[0],X.T[1],alpha=0.5)

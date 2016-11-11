@@ -1,8 +1,8 @@
 import numpy as np
 import sympy as sy
-import utils
-import copulas
-import margins
+from . import utils
+from . import copulas
+from . import margins
 
 
 
@@ -19,11 +19,11 @@ class archimedes():
     def __init__(self, type='independent', dim = 2, para=None,verbose=0):
         '''
         '''
-        if verbose:print 'initial Copula: '+type
+        if verbose:print('initial Copula: '+type)
         self.C, self.U, self.D = copulas.load(type,dim)
-        if verbose:print self.C
-        if verbose:print self.U
-        if verbose:print self.D,para, '\n'
+        if verbose:print(self.C)
+        if verbose:print(self.U)
+        if verbose:print(self.D,para, '\n')
         self.C_type = type
         self.C_para = para
 
@@ -38,11 +38,11 @@ class archimedes():
     def set_margin(self,dim, type='uniform', para=[]):
         '''
         '''
-        if self.verbose:print 'initial margin:',dim,type
+        if self.verbose:print('initial margin:',dim,type)
         F, X, P = margins.load(type,dim)
-        if self.verbose:print F
-        if self.verbose:print X
-        if self.verbose:print P,para, '\n'
+        if self.verbose:print(F)
+        if self.verbose:print(X)
+        if self.verbose:print(P,para, '\n')
 
         self.F[dim] = F
         self.P[dim] = P
@@ -62,7 +62,7 @@ class archimedes():
                     samples[:,m]
                     )
             self.F_para[m]=res
-            if self.verbose==1:print res
+            if self.verbose==1:print(res)
 
         U = self.transform_u(samples)
 
@@ -74,7 +74,7 @@ class archimedes():
                 self.D,
                 U
                 )
-        if self.verbose==1:print res
+        if self.verbose==1:print(res)
         self.C_para=res
 
 
@@ -128,15 +128,15 @@ class archimedes():
         '''
         '''
         # print model elements
-        print self.C_type
-        print self.C_para, '\n'
+        print(self.C_type)
+        print(self.C_para, '\n')
         for m in range(self.dim):
-            print self.F_type[m]
-            print self.F_para[m], '\n'
+            print(self.F_type[m])
+            print(self.F_para[m], '\n')
 
         if self.dim!=2:
-            print 'WARNING!  only bivariate Copula models can be plotted'
-            print '    FIX:  set "dim=2" and try again'
+            print('WARNING!  only bivariate Copula models can be plotted')
+            print('    FIX:  set "dim=2" and try again')
             return self
 
         # compute copula probability density function

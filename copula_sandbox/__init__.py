@@ -1,1 +1,1 @@
-from copula_sandbox import archimedes
+from .copula_sandbox import archimedes
